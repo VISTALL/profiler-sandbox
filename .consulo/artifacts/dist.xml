@@ -1,0 +1,24 @@
+<component name="ArtifactManager">
+  <artifact name="dist">
+    <output-path>$PROJECT_DIR$/out/artifacts/dist</output-path>
+    <root id="root">
+      <element id="directory" name="java-profiler">
+        <element id="directory" name="lib">
+          <element id="zip-archive" name="java-profiler-impl.jar">
+            <element id="module-production-resource-output" name="java-profiler-impl" />
+            <element id="module-output" name="java-profiler-impl" />
+          </element>
+          <element id="zip-archive" name="xprofiler.jar">
+            <element id="module-output" name="xprofiler-api" />
+            <element id="module-production-resource-output" name="xprofiler-api" />
+            <element id="module-output" name="xprofiler-impl" />
+            <element id="module-production-resource-output" name="xprofiler-impl" />
+          </element>
+          <element id="file-copy" path="$PROJECT_DIR$/consulo-java/profiler-impl/lib/tools.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/consulo-java/profiler-impl/lib/javasysmon-0.3.6.jar" />
+        </element>
+      </element>
+      <element id="dir-copy" path="$PROJECT_DIR$/dep" />
+    </root>
+  </artifact>
+</component>

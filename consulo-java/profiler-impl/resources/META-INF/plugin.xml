@@ -1,0 +1,25 @@
+<idea-plugin>
+	<id>org.mustbe.consulo.java.profiler</id>
+	<name>Java Profiler</name>
+	<depends>org.consulo.java</depends>
+
+	<actions>
+		<action id="NewProfileSession" class="org.mustbe.consulo.xprofiler.actions.NewProfileSessionAction">
+			<add-to-group group-id="ToolbarRunGroup" anchor="after" relative-to-action="RunnerActions"/>
+		</action>
+	</actions>
+
+	<extensionPoints>
+		<extensionPoint qualifiedName="com.intellij.xprofiler" interface="org.mustbe.consulo.xprofiler.XProfiler" />
+	</extensionPoints>
+
+	<extensions defaultExtensionNs="com.intellij">
+		<fileType.fileViewProviderFactory filetype="XPROFILER_FILE" implementationClass="org.mustbe.consulo.xprofiler.file.XProfilerFileViewProviderFactory" />
+		<fileTypeFactory implementation="org.mustbe.consulo.xprofiler.file.XProfilerSessionFileTypeFactory" />
+		<fileEditorProvider implementation="org.mustbe.consulo.xprofiler.ui.XProfilerSessionEditorProvider" />
+	</extensions>
+
+	<extensions defaultExtensionNs="com.intellij">
+		<xprofiler implementation="org.mustbe.consulo.java.profiler.JavaProfiler" />
+	</extensions>
+</idea-plugin>
