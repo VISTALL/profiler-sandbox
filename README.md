@@ -9,4 +9,4 @@ This repository contains my sandbox. I want create Profile subsystem for Consulo
 **/consulo-java** - will moved to consulo-java repo 
  
  
- ![short example][http://klikr.org/2b6b379e59c769c089c189fdc714.gif]
+ ![short example](http://klikr.org/2b6b379e59c769c089c189fdc714.gif "short example")
