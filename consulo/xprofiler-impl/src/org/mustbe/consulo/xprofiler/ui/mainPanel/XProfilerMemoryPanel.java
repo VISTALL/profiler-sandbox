@@ -1,7 +1,8 @@
 package org.mustbe.consulo.xprofiler.ui.mainPanel;
 
 import java.awt.BorderLayout;
-import java.util.ArrayList;
+import java.awt.event.MouseEvent;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -9,14 +10,19 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 
 import org.jetbrains.annotations.Nullable;
 import org.mustbe.consulo.xprofiler.XProfilerMemoryObjectInfo;
 import org.mustbe.consulo.xprofiler.XProfilerSession;
 import com.intellij.concurrency.JobScheduler;
+import com.intellij.openapi.project.Project;
+import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.table.TableView;
+import com.intellij.util.PairConsumer;
+import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.ColumnInfo;
 import com.intellij.util.ui.ListTableModel;
 import com.intellij.util.ui.UIUtil;
@@ -28,20 +34,19 @@ import com.intellij.util.ui.UIUtil;
 public class XProfilerMemoryPanel extends JPanel
 {
 	private Future<?> myFuture;
+	private Project myProject;
 
-	public XProfilerMemoryPanel(final XProfilerSession<?> session)
+	public XProfilerMemoryPanel(Project project, final XProfilerSession<?> session)
 	{
 		super(new BorderLayout());
+		myProject = project;
 
 		OnePixelSplitter pixelSplitter = new OnePixelSplitter(true);
 		add(pixelSplitter);
 
 		pixelSplitter.setFirstComponent(new JPanel());
 
-		List<XProfilerMemoryObjectInfo> list = new ArrayList<XProfilerMemoryObjectInfo>();
-		list.add(new XProfilerMemoryObjectInfo("java.lang.String", 2));
-		list.add(new XProfilerMemoryObjectInfo("java.lang.Integer", 100));
-		final ListTableModel<XProfilerMemoryObjectInfo> o = new ListTableModel<XProfilerMemoryObjectInfo>(new ColumnInfo[]{
+		final ListTableModel<XProfilerMemoryObjectInfo> tableModel = new ListTableModel<XProfilerMemoryObjectInfo>(new ColumnInfo[]{
 				new ColumnInfo<XProfilerMemoryObjectInfo, String>("Type")
 				{
 					@Nullable
@@ -80,9 +85,28 @@ public class XProfilerMemoryPanel extends JPanel
 						return 100;
 					}
 				}
-		}, list, 1);
+		}, Collections.<XProfilerMemoryObjectInfo>emptyList(), 1);
 
-		TableView<XProfilerMemoryObjectInfo> table = new TableView<XProfilerMemoryObjectInfo>(o);
+		final TableView<XProfilerMemoryObjectInfo> table = new TableView<XProfilerMemoryObjectInfo>(tableModel);
+		new DoubleClickListener()
+		{
+			@Override
+			protected boolean onDoubleClick(MouseEvent mouseEvent)
+			{
+				XProfilerMemoryObjectInfo selectedObject = table.getSelectedObject();
+				if(selectedObject == null)
+				{
+					return false;
+				}
+				PairConsumer<Project, XProfilerMemoryObjectInfo> navigatable = selectedObject.getNavigatable();
+				if(navigatable != null)
+				{
+					navigatable.consume(myProject, selectedObject);
+				}
+				return true;
+			}
+		}.installOn(table);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		pixelSplitter.setSecondComponent(ScrollPaneFactory.createScrollPane(table));
 
@@ -91,13 +115,19 @@ public class XProfilerMemoryPanel extends JPanel
 			@Override
 			public void run()
 			{
-				final List<XProfilerMemoryObjectInfo> memoryObjectInfos = session.getMemoryObjectInfos();
+				final List<XProfilerMemoryObjectInfo> memoryObjectInfos = session.fetchData(XProfilerSession.DEFAULT_OBJECT_INFOS);
 				UIUtil.invokeLaterIfNeeded(new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						o.setItems(memoryObjectInfos);
+						XProfilerMemoryObjectInfo selectedObject = table.getSelectedObject();
+						XProfilerMemoryObjectInfo newSelectedObject = selectedObject == null ? null : ContainerUtil.find(memoryObjectInfos,
+								selectedObject);
+
+						tableModel.setItems(memoryObjectInfos);
+
+						table.setSelection(Collections.singletonList(newSelectedObject));
 					}
 				});
 			}

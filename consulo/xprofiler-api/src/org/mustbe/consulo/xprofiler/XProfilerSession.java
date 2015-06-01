@@ -1,7 +1,10 @@
 package org.mustbe.consulo.xprofiler;
 
-import java.util.Collections;
+
 import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.util.Key;
 
 /**
  * @author VISTALL
@@ -9,17 +12,20 @@ import java.util.List;
  */
 public class XProfilerSession<P extends XProfilerProcess>
 {
+	public static final Key<List<XProfilerMemoryObjectInfo>> DEFAULT_OBJECT_INFOS = Key.create("default.object.infos");
+
 	private XProfiler<P> myProfiler;
 	private P myProcess;
 
-	public XProfilerSession(XProfiler<P> profiler, P process)
+	public XProfilerSession(@NotNull XProfiler<P> profiler, @NotNull P process)
 	{
 		myProfiler = profiler;
 		myProcess = process;
 	}
 
-	public List<XProfilerMemoryObjectInfo> getMemoryObjectInfos()
+	@NotNull
+	public <T> T fetchData(@NotNull Key<T> key)
 	{
-		return Collections.emptyList();
+		throw new UnsupportedOperationException();
 	}
 }

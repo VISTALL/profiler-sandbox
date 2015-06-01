@@ -38,7 +38,7 @@ public class JavaProcessDescriptionPanel extends JPanel
 				@Override
 				public void linkSelected(LinkLabel linkLabel, String o)
 				{
-					PsiClass aClass = JavaPsiFacade.getInstance(project).findClass(o, GlobalSearchScope.projectScope(project));
+					PsiClass aClass = JavaPsiFacade.getInstance(project).findClass(o, GlobalSearchScope.allScope(project));
 					if(aClass != null)
 					{
 						aClass.navigate(true);

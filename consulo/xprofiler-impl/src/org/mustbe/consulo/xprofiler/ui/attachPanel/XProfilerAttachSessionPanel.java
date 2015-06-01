@@ -34,6 +34,7 @@ import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.SortedListModel;
 import com.intellij.ui.components.JBList;
+import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.UIUtil;
 
 /**
@@ -61,6 +62,34 @@ public class XProfilerAttachSessionPanel extends JPanel implements Disposable
 		public XProfilerProcess getProcess()
 		{
 			return myProcess;
+		}
+
+		@Override
+		public boolean equals(Object o)
+		{
+			if(this == o)
+			{
+				return true;
+			}
+			if(o == null || getClass() != o.getClass())
+			{
+				return false;
+			}
+
+			XProfilerProcessItem item = (XProfilerProcessItem) o;
+
+			if(!myProcess.equals(item.myProcess))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return myProcess.hashCode();
 		}
 	}
 
@@ -188,20 +217,10 @@ public class XProfilerAttachSessionPanel extends JPanel implements Disposable
 					public void run()
 					{
 						XProfilerProcessItem selectedValue = (XProfilerProcessItem) processList.getSelectedValue();
+						XProfilerProcessItem item = selectedValue == null ? null : ContainerUtil.find(profilerProcessItems, selectedValue);
 
 						model.setAll(profilerProcessItems);
 
-						XProfilerProcessItem item = null;
-						if(selectedValue != null)
-						{
-							for(XProfilerProcessItem profilerProcessItem : profilerProcessItems)
-							{
-								if(profilerProcessItem.getProcess().equals(selectedValue.getProcess()))
-								{
-									item = profilerProcessItem;
-								}
-							}
-						}
 						processList.setSelectedValue(item, false);
 					}
 				});

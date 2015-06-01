@@ -6,9 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
 import org.mustbe.consulo.xprofiler.XProfiler;
 import org.mustbe.consulo.xprofiler.XProfilerMemoryObjectInfo;
 import org.mustbe.consulo.xprofiler.XProfilerSession;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.PairConsumer;
 import com.sun.tools.attach.VirtualMachine;
 import sun.tools.attach.HotSpotVirtualMachine;
 
@@ -18,6 +25,20 @@ import sun.tools.attach.HotSpotVirtualMachine;
  */
 public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 {
+	private static final PairConsumer<Project, XProfilerMemoryObjectInfo> ourNavigatable = new PairConsumer<Project, XProfilerMemoryObjectInfo>()
+	{
+		@Override
+		public void consume(Project project, XProfilerMemoryObjectInfo xProfilerMemoryObjectInfo)
+		{
+			PsiClass aClass = JavaPsiFacade.getInstance(project).findClass(xProfilerMemoryObjectInfo.getType(),
+					GlobalSearchScope.allScope(project));
+			if(aClass != null)
+			{
+				aClass.navigate(true);
+			}
+		}
+	};
+
 	private HotSpotVirtualMachine myVirtualMachine;
 
 	public JavaProfilerSession(XProfiler<JavaProfilerProcess> profiler, JavaProfilerProcess process, VirtualMachine virtualMachine)
@@ -26,26 +47,30 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 		myVirtualMachine = (HotSpotVirtualMachine) virtualMachine;
 	}
 
+	@NotNull
 	@Override
-	public List<XProfilerMemoryObjectInfo> getMemoryObjectInfos()
+	public <T> T fetchData(@NotNull Key<T> key)
 	{
-		try
+		if(key == DEFAULT_OBJECT_INFOS)
 		{
-			InputStream inputStream = myVirtualMachine.heapHisto("-live");
-			HeapHistory heapHistory = new HeapHistory(inputStream);
-
-			Set<HeapHistory.ClassInfoImpl> heapHistogram = heapHistory.getHeapHistogram();
-			List<XProfilerMemoryObjectInfo> list = new ArrayList<XProfilerMemoryObjectInfo>();
-			for(HeapHistory.ClassInfoImpl classInfo : heapHistogram)
+			try
 			{
-				list.add(new XProfilerMemoryObjectInfo(classInfo.getName(), (int) classInfo.getInstancesCount()));
+				InputStream inputStream = myVirtualMachine.heapHisto("-live");
+				HeapHistory heapHistory = new HeapHistory(inputStream);
+
+				Set<HeapHistory.ClassInfoImpl> heapHistogram = heapHistory.getHeapHistogram();
+				List<XProfilerMemoryObjectInfo> list = new ArrayList<XProfilerMemoryObjectInfo>();
+				for(HeapHistory.ClassInfoImpl classInfo : heapHistogram)
+				{
+					list.add(new XProfilerMemoryObjectInfo(classInfo.getName(), (int) classInfo.getInstancesCount(), ourNavigatable));
+				}
+				return (T) list;
 			}
-			return list;
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
-		catch(IOException e)
-		{
-			e.printStackTrace();
-		}
-		return super.getMemoryObjectInfos();
+		return super.fetchData(key);
 	}
 }

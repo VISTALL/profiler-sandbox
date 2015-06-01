@@ -46,7 +46,7 @@ public class XProfilerSessionFileEditor extends UserDataHolderBase implements Fi
 		final CardLayout cardLayout = new CardLayout();
 		myRootPanel = new JPanel(cardLayout);
 
-		myMainPanel = new XProfilerMainPanel();
+		myMainPanel = new XProfilerMainPanel(project);
 		myAttachSessionPanel = new XProfilerAttachSessionPanel(project, new ResultConsumer<XProfilerSession>()
 		{
 			@Override
