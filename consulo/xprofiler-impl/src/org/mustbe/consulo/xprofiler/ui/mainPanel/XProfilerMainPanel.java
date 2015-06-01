@@ -29,7 +29,10 @@ public class XProfilerMainPanel extends JPanel implements Disposable
 		TabbedPaneWrapper tabbedPaneWrapper = new TabbedPaneWrapper(this);
 		tabbedPaneWrapper.addTab("CPU", new JPanel());
 
-		tabbedPaneWrapper.addTab("Memory", new XProfilerMemoryPanel(myProject, session));
+		XProfilerMemoryPanel memoryPanel = new XProfilerMemoryPanel(myProject, session);
+
+		Disposer.register(this, memoryPanel);
+		tabbedPaneWrapper.addTab("Memory", memoryPanel);
 
 		add(tabbedPaneWrapper.getComponent(), BorderLayout.CENTER);
 	}

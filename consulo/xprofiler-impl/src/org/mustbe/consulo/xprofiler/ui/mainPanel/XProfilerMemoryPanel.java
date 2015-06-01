@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mustbe.consulo.xprofiler.XProfilerMemoryObjectInfo;
 import org.mustbe.consulo.xprofiler.XProfilerSession;
 import com.intellij.concurrency.JobScheduler;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.OnePixelSplitter;
@@ -31,7 +32,7 @@ import com.intellij.util.ui.UIUtil;
  * @author VISTALL
  * @since 31.05.2015
  */
-public class XProfilerMemoryPanel extends JPanel
+public class XProfilerMemoryPanel extends JPanel implements Disposable
 {
 	private Future<?> myFuture;
 	private Project myProject;
@@ -132,5 +133,11 @@ public class XProfilerMemoryPanel extends JPanel
 				});
 			}
 		}, 1, 5, TimeUnit.SECONDS);
+	}
+
+	@Override
+	public void dispose()
+	{
+		myFuture.cancel(false);
 	}
 }

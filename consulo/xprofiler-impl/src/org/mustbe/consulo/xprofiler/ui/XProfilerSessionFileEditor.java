@@ -31,33 +31,27 @@ import com.intellij.util.ui.UIUtil;
  */
 public class XProfilerSessionFileEditor extends UserDataHolderBase implements FileEditor
 {
-	private Project myProject;
-	private VirtualFile myVirtualFile;
-
-	private XProfilerAttachSessionPanel myAttachSessionPanel;
-	private XProfilerMainPanel myMainPanel;
 	private JPanel myRootPanel;
 
 	public XProfilerSessionFileEditor(final Project project, VirtualFile virtualFile)
 	{
-		myProject = project;
-		myVirtualFile = virtualFile;
-
 		final CardLayout cardLayout = new CardLayout();
 		myRootPanel = new JPanel(cardLayout);
 
-		myMainPanel = new XProfilerMainPanel(project);
-		myAttachSessionPanel = new XProfilerAttachSessionPanel(project, new ResultConsumer<XProfilerSession>()
+		final XProfilerMainPanel mainPanel = new XProfilerMainPanel(project);
+		XProfilerAttachSessionPanel attachSessionPanel = new XProfilerAttachSessionPanel(project, new ResultConsumer<XProfilerSession>()
 		{
 			@Override
 			public void onSuccess(final XProfilerSession value)
 			{
+				Disposer.register(XProfilerSessionFileEditor.this, value);
+
 				UIUtil.invokeLaterIfNeeded(new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						myMainPanel.init(value);
+						mainPanel.init(value);
 						cardLayout.show(myRootPanel, "main");
 					}
 				});
@@ -77,11 +71,11 @@ public class XProfilerSessionFileEditor extends UserDataHolderBase implements Fi
 			}
 		});
 
-		myRootPanel.add(myAttachSessionPanel, "attach");
-		myRootPanel.add(myMainPanel, "main");
+		myRootPanel.add(attachSessionPanel, "attach");
+		myRootPanel.add(mainPanel, "main");
 
-		Disposer.register(this, myAttachSessionPanel);
-		Disposer.register(this, myMainPanel);
+		Disposer.register(this, attachSessionPanel);
+		Disposer.register(this, mainPanel);
 	}
 
 	@NotNull

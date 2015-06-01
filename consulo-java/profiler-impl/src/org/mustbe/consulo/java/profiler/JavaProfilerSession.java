@@ -73,4 +73,16 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 		}
 		return super.fetchData(key);
 	}
+
+	@Override
+	public void dispose()
+	{
+		try
+		{
+			myVirtualMachine.detach();
+		}
+		catch(IOException ignored)
+		{
+		}
+	}
 }
