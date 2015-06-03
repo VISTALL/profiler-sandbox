@@ -36,6 +36,13 @@
           <orderEntry type="module-extension-sdk" extension-id="java" />
           <orderEntry type="sourceFolder" />
           <orderEntry type="module" module-name="xprofiler-api" exported="" />
+          <orderEntry type="module-library">
+            <library>
+              <binaries>
+                <root url="jar://$MODULE_DIR$/lib/jfreechart-nofx-2.0-pre1.jar!/" />
+              </binaries>
+            </library>
+          </orderEntry>
         </module-layer>
       </module>
       <module name="java-profiler-impl" dirurl="file://$PROJECT_DIR$/consulo-java/profiler-impl" current-layer="Default">

@@ -6,15 +6,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
+import org.mustbe.consulo.profiler.MemoryInfo;
+import org.mustbe.consulo.profiler.MemoryUsage;
+import org.mustbe.consulo.profiler.ProfilerService;
 import org.mustbe.consulo.xprofiler.XProfiler;
 import org.mustbe.consulo.xprofiler.XProfilerMemoryObjectInfo;
+import org.mustbe.consulo.xprofiler.XProfilerMemorySample;
 import org.mustbe.consulo.xprofiler.XProfilerSession;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.Pair;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.Consumer;
 import com.intellij.util.PairConsumer;
 import com.sun.tools.attach.VirtualMachine;
 import sun.tools.attach.HotSpotVirtualMachine;
@@ -30,8 +37,7 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 		@Override
 		public void consume(Project project, XProfilerMemoryObjectInfo xProfilerMemoryObjectInfo)
 		{
-			PsiClass aClass = JavaPsiFacade.getInstance(project).findClass(xProfilerMemoryObjectInfo.getType(),
-					GlobalSearchScope.allScope(project));
+			PsiClass aClass = JavaPsiFacade.getInstance(project).findClass(xProfilerMemoryObjectInfo.getType(), GlobalSearchScope.allScope(project));
 			if(aClass != null)
 			{
 				aClass.navigate(true);
@@ -39,21 +45,39 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 		}
 	};
 
-	private HotSpotVirtualMachine myVirtualMachine;
+	public static final Key<XProfilerMemorySample> HEAP_MEMORY_SAMPLE = Key.create("heap.memory.sample");
+	public static final Key<XProfilerMemorySample> NONHEAP_MEMORY_SAMPLE = Key.create("non.heap.memory.sample");
 
-	public JavaProfilerSession(XProfiler<JavaProfilerProcess> profiler, JavaProfilerProcess process, VirtualMachine virtualMachine)
+	private HotSpotVirtualMachine myVirtualMachine;
+	private ProfilerService.Client myClient;
+
+	public JavaProfilerSession(XProfiler<JavaProfilerProcess> profiler,
+			JavaProfilerProcess process,
+			VirtualMachine virtualMachine,
+			ProfilerService.Client client)
 	{
 		super(profiler, process);
+		myClient = client;
 		myVirtualMachine = (HotSpotVirtualMachine) virtualMachine;
 	}
 
 	@NotNull
 	@Override
-	public Object fetchDataImpl(@NotNull Key<?> key) throws Throwable
+	public Pair<String, Key<XProfilerMemorySample>>[] getMemoryWatchKeys()
 	{
-		if(key == DEFAULT_OBJECT_INFOS)
+		return new Pair[]{
+				Pair.create("Heap Memory", HEAP_MEMORY_SAMPLE),
+				Pair.create("Non Heap Memory", NONHEAP_MEMORY_SAMPLE),
+		};
+	}
+
+	@Override
+	protected void fetchDataImpl(@NotNull Key<?> key, @NotNull final Consumer<Object> consumer)
+	{
+		try
 		{
-			try
+			System.out.println(key);
+			if(key == DEFAULT_OBJECT_INFOS)
 			{
 				InputStream inputStream = myVirtualMachine.heapHisto("-live");
 				HeapHistory heapHistory = new HeapHistory(inputStream);
@@ -64,14 +88,29 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 				{
 					list.add(new XProfilerMemoryObjectInfo(classInfo.getName(), (int) classInfo.getInstancesCount(), ourNavigatable));
 				}
-				return list;
+				consumer.consume(list);
 			}
-			catch(IOException e)
+			else if(key == HEAP_MEMORY_SAMPLE)
 			{
-				e.printStackTrace();
+				MemoryInfo result = myClient.memoryInfo();
+				MemoryUsage heap = result.getHeap();
+				consumer.consume(new XProfilerMemorySample(heap.getCommitted(), heap.getUsed()));
+			}
+			else if(key == NONHEAP_MEMORY_SAMPLE)
+			{
+				MemoryInfo result = myClient.memoryInfo();
+				MemoryUsage heap = result.getNonHeap();
+				consumer.consume(new XProfilerMemorySample(heap.getCommitted(), heap.getUsed()));
 			}
 		}
-		return super.fetchDataImpl(key);
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		catch(TException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Override

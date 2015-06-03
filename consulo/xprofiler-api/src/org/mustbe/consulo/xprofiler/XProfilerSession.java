@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.consulo.lombok.annotations.Logger;
 import org.jetbrains.annotations.NotNull;
-import com.intellij.execution.ExecutionException;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.util.KeyWithDefaultValue;
+import com.intellij.openapi.util.Pair;
+import com.intellij.util.Consumer;
 
 /**
  * @author VISTALL
@@ -18,6 +18,7 @@ import com.intellij.openapi.util.KeyWithDefaultValue;
 public class XProfilerSession<P extends XProfilerProcess> implements Disposable
 {
 	public static final Key<List<XProfilerMemoryObjectInfo>> DEFAULT_OBJECT_INFOS = Key.create("default.object.infos");
+	public static final Key<XProfilerMemorySample> DEFAULT_MEMORY_SAMPLE = Key.create("default.memory.sample");
 
 	private XProfiler<P> myProfiler;
 	private P myProcess;
@@ -28,28 +29,20 @@ public class XProfilerSession<P extends XProfilerProcess> implements Disposable
 		myProcess = process;
 	}
 
-	@NotNull
-	public final <T> T fetchData(@NotNull Key<T> key) throws ExecutionException
+	public final <T> void fetchData(@NotNull Key<T> key, @NotNull Consumer<T> consumer)
 	{
-		try
-		{
-			//noinspection unchecked
-			return (T) fetchDataImpl(key);
-		}
-		catch(Throwable e)
-		{
-			if(key instanceof KeyWithDefaultValue)
-			{
-				return ((KeyWithDefaultValue<T>) key).getDefaultValue();
-			}
-			throw new ExecutionException(e);
-		}
+		fetchDataImpl(key, (Consumer<Object>) consumer);
+	}
+
+	protected void fetchDataImpl(@NotNull Key<?> key, @NotNull Consumer<Object> consumer)
+	{
+		throw new UnsupportedOperationException();
 	}
 
 	@NotNull
-	public Object fetchDataImpl(@NotNull Key<?> key)  throws Throwable
+	public Pair<String, Key<XProfilerMemorySample>>[] getMemoryWatchKeys()
 	{
-		throw new UnsupportedOperationException();
+		return new Pair[] {Pair.create("Memory", DEFAULT_MEMORY_SAMPLE)};
 	}
 
 	@Override

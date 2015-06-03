@@ -19,6 +19,7 @@
           <element id="zip-archive" name="profiler-agent-common.jar">
             <element id="module-output" name="agent-common" />
           </element>
+          <element id="file-copy" path="$PROJECT_DIR$/consulo/xprofiler-impl/lib/jfreechart-nofx-2.0-pre1.jar" />
         </element>
         <element id="directory" name="dist">
           <element id="file-copy" path="$PROJECT_DIR$/consulo-java/profiler-impl/dist/profiler-agent.jar" />

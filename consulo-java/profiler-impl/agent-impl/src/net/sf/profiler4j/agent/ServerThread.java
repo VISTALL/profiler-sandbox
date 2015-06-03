@@ -6,10 +6,9 @@ import java.util.List;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.server.THsHaServer;
 import org.apache.thrift.server.TServer;
-import org.apache.thrift.transport.TNonblockingServerSocket;
-import org.apache.thrift.transport.TNonblockingServerTransport;
+import org.apache.thrift.server.TSimpleServer;
+import org.apache.thrift.transport.TServerSocket;
 import org.mustbe.consulo.profiler.ClassInfo;
 import org.mustbe.consulo.profiler.MemoryInfo;
 import org.mustbe.consulo.profiler.ProfilerService;
@@ -26,8 +25,8 @@ public class ServerThread extends Thread
 	public ServerThread(Config config) throws Exception
 	{
 		myConfig = config;
-		TNonblockingServerTransport tServerSocket = new TNonblockingServerSocket(config.getPort());
-		THsHaServer.Args arguments = new THsHaServer.Args(tServerSocket);
+		TServerSocket tServerSocket = new TServerSocket(config.getPort());
+		TServer.Args arguments = new TServer.Args(tServerSocket);
 		arguments.protocolFactory(new TBinaryProtocol.Factory());
 		arguments.processor(new ProfilerService.Processor<ProfilerService.Iface>(new ProfilerService.Iface()
 		{
@@ -68,7 +67,7 @@ public class ServerThread extends Thread
 			}
 		}));
 
-		myServer = new THsHaServer(arguments);
+		myServer = new TSimpleServer(arguments);
 	}
 
 	@Override

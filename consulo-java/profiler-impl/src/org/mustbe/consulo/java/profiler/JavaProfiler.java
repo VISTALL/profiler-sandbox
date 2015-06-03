@@ -8,17 +8,11 @@ import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 
-import org.apache.thrift.TException;
-import org.apache.thrift.async.AsyncMethodCallback;
-import org.apache.thrift.async.TAsyncClientManager;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
-import org.apache.thrift.transport.TNonblockingSocket;
-import org.apache.thrift.transport.TNonblockingTransport;
+import org.apache.thrift.transport.TSocket;
 import org.jetbrains.annotations.NotNull;
 import org.mustbe.consulo.java.JavaIcons;
 import org.mustbe.consulo.java.profiler.ui.JavaProcessDescriptionPanel;
-import org.mustbe.consulo.profiler.MemoryInfo;
 import org.mustbe.consulo.profiler.ProfilerService;
 import org.mustbe.consulo.xprofiler.XProfiler;
 import org.mustbe.consulo.xprofiler.XProfilerSession;
@@ -84,36 +78,12 @@ public class JavaProfiler extends XProfiler<JavaProfilerProcess>
 			File agentPath = new File(plugin.getPath(), "dist/profiler-agent.jar");
 			vm.loadAgent(agentPath.getPath(), "");
 
-			TNonblockingTransport transport = new TNonblockingSocket("127.0.0.1", 7890, 1);
+			TSocket transport = new TSocket("127.0.0.1", 7890);
 
-			TAsyncClientManager clientManager = new TAsyncClientManager();
-			TProtocolFactory protocolFactory = new TBinaryProtocol.Factory();
-			ProfilerService.AsyncClient client = new ProfilerService.AsyncClient(protocolFactory, clientManager, transport);
+			transport.open();
+			ProfilerService.Client client = new ProfilerService.Client(new TBinaryProtocol(transport));
 
-			client.memoryInfo(new AsyncMethodCallback()
-			{
-				@Override
-				public void onComplete(Object o)
-				{
-					try
-					{
-						MemoryInfo result = ((ProfilerService.AsyncClient.memoryInfo_call) o).getResult();
-						System.out.println("memory");
-					}
-					catch(TException e)
-					{
-						onError(e);
-					}
-				}
-
-				@Override
-				public void onError(Exception e)
-				{
-					e.printStackTrace();
-				}
-			});
-
-			return new JavaProfilerSession(this, process, vm);
+			return new JavaProfilerSession(this, process, vm, client);
 		}
 		catch(Throwable e)
 		{
