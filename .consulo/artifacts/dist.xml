@@ -17,6 +17,9 @@
           <element id="file-copy" path="$PROJECT_DIR$/consulo-java/profiler-impl/lib/tools.jar" />
           <element id="file-copy" path="$PROJECT_DIR$/consulo-java/profiler-impl/lib/javasysmon-0.3.6.jar" />
         </element>
+        <element id="directory" name="dist">
+          <element id="file-copy" path="$PROJECT_DIR$/consulo-java/profiler-impl/dist/profiler-agent.jar" />
+        </element>
       </element>
       <element id="dir-copy" path="$PROJECT_DIR$/dep" />
     </root>

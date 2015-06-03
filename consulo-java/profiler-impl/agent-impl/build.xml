@@ -1,0 +1,50 @@
+<project name="Consulo Profiler Agent" default="all">
+	<taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpath="${basedir}/lib/jarjar-1.0.jar"/>
+
+	<property name="build" value="${basedir}/build"/>
+	<property name="build.classes" value="${build}/classes"/>
+
+	<target name="all">
+		<delete dir="${build}"/>
+		<mkdir dir="${build}"/>
+		<mkdir dir="${build.classes}"/>
+		<mkdir dir="${build}/temp"/>
+
+		<copy todir="${build}/temp" file="${basedir}/lib/asm-all-5.0.jar"/>
+
+		<path id="javac.classpath">
+			<pathelement path="${build}/temp/asm-all-5.0.jar"/>
+		</path>
+
+		<javac srcdir="src/:../agent-common/src" destdir="${build.classes}" source="1.6" target="1.6"
+			   classpathref="javac.classpath"/>
+
+		<jar destfile="${build}/temp/profiler-agent.jar">
+			<manifest>
+				<attribute name="Premain-Class" value="net.sf.profiler4j.agent.Agent"/>
+				<attribute name="Agent-Class" value="net.sf.profiler4j.agent.Agent"/>
+				<attribute name="Boot-Class-Path" value="profiler-agent.jar"/>
+				<attribute name="Can-Redefine-Classes" value="true"/>
+			</manifest>
+
+			<fileset dir="${build.classes}/" includes="**/**"/>
+		</jar>
+
+		<!--patch in one library-->
+		<jarjar jarfile="${base.dir}/../../dist/profiler-agent.jar">
+			<manifest>
+				<attribute name="Premain-Class" value="net.sf.profiler4j.agent.Agent"/>
+				<attribute name="Agent-Class" value="net.sf.profiler4j.agent.Agent"/>
+				<attribute name="Boot-Class-Path" value="profiler-agent.jar"/>
+				<attribute name="Can-Redefine-Classes" value="true"/>
+			</manifest>
+
+			<zipfileset src="${build}/temp/profiler-agent.jar"/>
+			<zipfileset src="${build}/temp/asm-all-5.0.jar"/>
+
+			<rule pattern="org.objectweb.asm.**" result="consulo.internal.org.objectweb.asm.@1"/>
+		</jarjar>
+
+		<delete dir="${build}"/>
+	</target>
+</project>
