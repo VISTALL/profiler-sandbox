@@ -45,7 +45,6 @@ public class Config
 	private boolean enabled = true;
 	private int port = 7890;
 	private boolean exitVmOnFailure = false;
-	private boolean waitConnection = false;
 	private boolean saveSnapshotOnExit;
 	private static File tempDir;
 	private boolean dumpClasses = false;
@@ -106,11 +105,7 @@ public class Config
 					value = arg.substring(p + 1, arg.length());
 				}
 			}
-			if("waitconn".equals(key))
-			{
-				waitConnection = Boolean.parseBoolean(value);
-			}
-			else if("verbosity".equals(key))
+			if("verbosity".equals(key))
 			{
 				verbosity = Integer.parseInt(value);
 			}
@@ -307,13 +302,4 @@ public class Config
 	{
 		return this.verbosity;
 	}
-
-	/**
-	 * @return Returns the waitConnection.
-	 */
-	public boolean isWaitConnection()
-	{
-		return this.waitConnection;
-	}
-
 }

@@ -43,6 +43,7 @@ import java.net.SocketException;
  *
  * @author Antonio S. R. Gomes
  */
+@Deprecated
 class Server extends Thread {
 
     private Config config;
@@ -159,9 +160,6 @@ class Server extends Thread {
                     // send EOF
                     out.writeInt(-1);
                     out.flush();
-                    synchronized (Agent.waitConnectionLock) { 
-                        Agent.waitConnectionLock.notifyAll();
-                    }
                     break;
                 case CMD_LIST_CLASSES :
                     out.writeInt(COMMAND_ACK);

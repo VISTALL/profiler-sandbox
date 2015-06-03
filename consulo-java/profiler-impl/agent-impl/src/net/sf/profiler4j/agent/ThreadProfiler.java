@@ -142,7 +142,7 @@ public class ThreadProfiler {
      */
     public static void enterMethod(int globalMethodId) {
         final Thread ct = Thread.currentThread();
-        if (ct == Agent.server || Thread.holdsLock(rl) || Thread.holdsLock(globalLock)
+        if (isOutThread(ct) || Thread.holdsLock(rl) || Thread.holdsLock(globalLock)
                 || ct.getThreadGroup() == systemThreadGroup
                 || ct == Transformer.transformerThread) {
             return;
@@ -175,7 +175,7 @@ public class ThreadProfiler {
      */
     public static void exitMethod(int globalMethodId) {
         final Thread ct = Thread.currentThread();
-        if (ct == Agent.server || Thread.holdsLock(rl) || Thread.holdsLock(globalLock)
+        if (isOutThread(ct) || Thread.holdsLock(rl) || Thread.holdsLock(globalLock)
                 || ct.getThreadGroup() == systemThreadGroup
                 || ct == Transformer.transformerThread) {
             return;
@@ -198,6 +198,16 @@ public class ThreadProfiler {
             }
         }
     }
+
+	private static boolean isOutThread(Thread thread)
+	{
+		if(thread == Agent.serverThread)
+		{
+			return true;
+		}
+		String name = thread.getClass().getName();
+		return name.startsWith("consulo.profiler.internal");
+	}
     /**
      * Creates a new session and increments the session counter. The newly created session
      * is transient.

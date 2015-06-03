@@ -23,8 +23,7 @@ import java.net.Socket;
 import net.sf.profiler4j.agent.AgentConstants;
 import net.sf.profiler4j.agent.ThreadInfo;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.intellij.openapi.diagnostic.Logger;
 
 /**
  * Class the implements the Profiler4j remote client.
@@ -36,8 +35,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Client
 {
-
-	private static final Log log = LogFactory.getLog(Client.class);
+	private static final Logger log = Logger.getInstance(Client.class);
 
 	private Socket s;
 	private ObjectOutputStream out;
