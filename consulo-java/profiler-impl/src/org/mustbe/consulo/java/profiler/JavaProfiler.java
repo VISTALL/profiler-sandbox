@@ -1,5 +1,6 @@
 package org.mustbe.consulo.java.profiler;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -10,9 +11,12 @@ import javax.swing.JPanel;
 import org.jetbrains.annotations.NotNull;
 import org.mustbe.consulo.java.JavaIcons;
 import org.mustbe.consulo.java.profiler.ui.JavaProcessDescriptionPanel;
-import org.mustbe.consulo.xprofiler.XProfilerSession;
 import org.mustbe.consulo.xprofiler.XProfiler;
+import org.mustbe.consulo.xprofiler.XProfilerSession;
 import com.intellij.execution.ExecutionException;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.cl.PluginClassLoader;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
@@ -64,7 +68,10 @@ public class JavaProfiler extends XProfiler<JavaProfilerProcess>
 		try
 		{
 			VirtualMachine vm = VirtualMachine.attach(process.getId());
-			vm.loadAgent("R:\\profiler4j\\target\\profiler4j-1.0-beta3\\agent.jar", "");  //TODO [VISTALL]
+			PluginClassLoader classLoader = (PluginClassLoader) JavaProfiler.class.getClassLoader();
+			IdeaPluginDescriptor plugin = PluginManager.getPlugin(classLoader.getPluginId());
+			File agentPath = new File(plugin.getPath(), "dist/profiler-agent.jar");
+			vm.loadAgent(agentPath.getPath(), "");
 			return new JavaProfilerSession(this, process, vm);
 		}
 		catch(Throwable e)

@@ -49,7 +49,7 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 
 	@NotNull
 	@Override
-	public <T> T fetchData(@NotNull Key<T> key)
+	public Object fetchDataImpl(@NotNull Key<?> key) throws Throwable
 	{
 		if(key == DEFAULT_OBJECT_INFOS)
 		{
@@ -64,14 +64,14 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 				{
 					list.add(new XProfilerMemoryObjectInfo(classInfo.getName(), (int) classInfo.getInstancesCount(), ourNavigatable));
 				}
-				return (T) list;
+				return list;
 			}
 			catch(IOException e)
 			{
 				e.printStackTrace();
 			}
 		}
-		return super.fetchData(key);
+		return super.fetchDataImpl(key);
 	}
 
 	@Override

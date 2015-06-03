@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mustbe.consulo.xprofiler.XProfilerMemoryObjectInfo;
 import org.mustbe.consulo.xprofiler.XProfilerSession;
 import com.intellij.concurrency.JobScheduler;
+import com.intellij.execution.ExecutionException;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.DoubleClickListener;
@@ -116,21 +117,27 @@ public class XProfilerMemoryPanel extends JPanel implements Disposable
 			@Override
 			public void run()
 			{
-				final List<XProfilerMemoryObjectInfo> memoryObjectInfos = session.fetchData(XProfilerSession.DEFAULT_OBJECT_INFOS);
-				UIUtil.invokeLaterIfNeeded(new Runnable()
+				try
 				{
-					@Override
-					public void run()
+					final List<XProfilerMemoryObjectInfo> memoryObjectInfos = session.fetchData(XProfilerSession.DEFAULT_OBJECT_INFOS);
+					UIUtil.invokeLaterIfNeeded(new Runnable()
 					{
-						XProfilerMemoryObjectInfo selectedObject = table.getSelectedObject();
-						XProfilerMemoryObjectInfo newSelectedObject = selectedObject == null ? null : ContainerUtil.find(memoryObjectInfos,
-								selectedObject);
+						@Override
+						public void run()
+						{
+							XProfilerMemoryObjectInfo selectedObject = table.getSelectedObject();
+							XProfilerMemoryObjectInfo newSelectedObject = selectedObject == null ? null : ContainerUtil.find(memoryObjectInfos,
+									selectedObject);
 
-						tableModel.setItems(memoryObjectInfos);
+							tableModel.setItems(memoryObjectInfos);
 
-						table.setSelection(Collections.singletonList(newSelectedObject));
-					}
-				});
+							table.setSelection(Collections.singletonList(newSelectedObject));
+						}
+					});
+				}
+				catch(ExecutionException ignored)
+				{
+				}
 			}
 		}, 1, 5, TimeUnit.SECONDS);
 	}
