@@ -76,7 +76,6 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 	{
 		try
 		{
-			System.out.println(key);
 			if(key == DEFAULT_OBJECT_INFOS)
 			{
 				InputStream inputStream = myVirtualMachine.heapHisto("-live");
