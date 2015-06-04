@@ -35,7 +35,7 @@ public class XProfilerSession<P extends XProfilerProcess> implements Disposable
 	public final <T> void fetchData(@NotNull Key<T> key, @NotNull Consumer<T> consumer)
 	{
 		LOGGER.assertTrue(!ApplicationManager.getApplication().isDispatchThread(), "This method should not be called from dispatch thread, " +
-				"due it cat block it");
+				"due it can block it");
 		fetchDataImpl(key, (Consumer<Object>) consumer);
 	}
 
