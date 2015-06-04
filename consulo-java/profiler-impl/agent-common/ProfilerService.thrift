@@ -1,13 +1,13 @@
 namespace java org.mustbe.consulo.profiler
 
-struct ClassInfo
+struct TClassInfo
 {
 	1:string name;
 
 	2:bool instrumented;
 }
 
-struct MemoryUsage
+struct TMemoryUsage
 {
 	1:i64 init;
 	2:i64 used;
@@ -15,18 +15,36 @@ struct MemoryUsage
 	4:i64 max;
 }
 
-struct MemoryInfo
+struct TMemoryInfo
 {
-	1:MemoryUsage heap;
-	2:MemoryUsage nonHeap;
+	1:TMemoryUsage heap;
+	2:TMemoryUsage nonHeap;
 	3:i32 objectPendingFinalizationCount;
 }
 
-service ProfilerService
+struct TThreadInfo
+{
+	1:i64 id;
+	2:string name;
+	3:i32 state;
+	4:list<TStackTraceElement> stackTrace;
+}
+
+struct TStackTraceElement
+{
+	1:string fileName;
+	2:string className;
+	3:string methodName;
+	4:i32 lineNumber;
+}
+
+service TProfilerService
 {
 	void gc();
 
-	MemoryInfo memoryInfo();
+	TMemoryInfo memoryInfo();
 
-	list<ClassInfo> classes();
+	list<TClassInfo> classes();
+
+	list<TThreadInfo> threads();
 }

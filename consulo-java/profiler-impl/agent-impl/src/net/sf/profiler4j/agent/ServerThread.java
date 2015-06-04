@@ -1,6 +1,7 @@
 package net.sf.profiler4j.agent;
 
 import java.lang.management.MemoryUsage;
+import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,9 +10,12 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TServerSocket;
-import org.mustbe.consulo.profiler.ClassInfo;
-import org.mustbe.consulo.profiler.MemoryInfo;
-import org.mustbe.consulo.profiler.ProfilerService;
+import org.mustbe.consulo.profiler.TClassInfo;
+import org.mustbe.consulo.profiler.TMemoryInfo;
+import org.mustbe.consulo.profiler.TMemoryUsage;
+import org.mustbe.consulo.profiler.TProfilerService;
+import org.mustbe.consulo.profiler.TStackTraceElement;
+import org.mustbe.consulo.profiler.TThreadInfo;
 
 /**
  * @author VISTALL
@@ -28,7 +32,7 @@ public class ServerThread extends Thread
 		TServerSocket tServerSocket = new TServerSocket(config.getPort());
 		TServer.Args arguments = new TServer.Args(tServerSocket);
 		arguments.protocolFactory(new TBinaryProtocol.Factory());
-		arguments.processor(new ProfilerService.Processor<ProfilerService.Iface>(new ProfilerService.Iface()
+		arguments.processor(new TProfilerService.Processor<TProfilerService.Iface>(new TProfilerService.Iface()
 		{
 			@Override
 			public void gc() throws TException
@@ -38,32 +42,51 @@ public class ServerThread extends Thread
 			}
 
 			@Override
-			public MemoryInfo memoryInfo() throws TException
+			public TMemoryInfo memoryInfo() throws TException
 			{
 				Log.print(0, "memoryInfo");
 				MemoryUsage heapMemoryUsage = Agent.membean.getHeapMemoryUsage();
 				MemoryUsage nonHeapMemoryUsage = Agent.membean.getNonHeapMemoryUsage();
 
-				return new MemoryInfo(convert(heapMemoryUsage), convert(nonHeapMemoryUsage), Agent.membean.getObjectPendingFinalizationCount());
+				return new TMemoryInfo(convert(heapMemoryUsage), convert(nonHeapMemoryUsage), Agent.membean.getObjectPendingFinalizationCount());
 			}
 
-			private org.mustbe.consulo.profiler.MemoryUsage convert(MemoryUsage memoryUsage)
+			private TMemoryUsage convert(MemoryUsage memoryUsage)
 			{
-				return new org.mustbe.consulo.profiler.MemoryUsage(memoryUsage.getInit(), memoryUsage.getUsed(), memoryUsage.getCommitted(),
-						memoryUsage.getMax());
+				return new TMemoryUsage(memoryUsage.getInit(), memoryUsage.getUsed(), memoryUsage.getCommitted(), memoryUsage.getMax());
 			}
 
 			@Override
-			public List<ClassInfo> classes() throws TException
+			public List<TClassInfo> classes() throws TException
 			{
 				Log.print(0, "classes");
 				Class[] classes = Agent.getLoadedClasses(true);
-				List<ClassInfo> classInfoList = new ArrayList<ClassInfo>(classes.length);
+				List<TClassInfo> classInfoList = new ArrayList<TClassInfo>(classes.length);
 				for(Class aClass : classes)
 				{
-					classInfoList.add(new ClassInfo(aClass.getName(), BytecodeTransformer.list.contains(aClass.getName())));
+					classInfoList.add(new TClassInfo(aClass.getName(), BytecodeTransformer.list.contains(aClass.getName())));
 				}
 				return classInfoList;
+			}
+
+			@Override
+			public List<TThreadInfo> threads() throws TException
+			{
+				long[] allThreadIds = Agent.threadbean.getAllThreadIds();
+				java.lang.management.ThreadInfo[] threadInfo = Agent.threadbean.getThreadInfo(allThreadIds, Integer.MAX_VALUE);
+
+				List<TThreadInfo> list = new ArrayList<TThreadInfo>(threadInfo.length);
+				for(ThreadInfo info : threadInfo)
+				{
+					StackTraceElement[] stackTrace = info.getStackTrace();
+					List<TStackTraceElement> stackTraceElements = new ArrayList<TStackTraceElement>(stackTrace.length);
+					for(StackTraceElement it : stackTrace)
+					{
+						stackTraceElements.add(new TStackTraceElement(it.getFileName(), it.getClassName(), it.getMethodName(), it.getLineNumber()));
+					}
+					list.add(new TThreadInfo(info.getThreadId(), info.getThreadName(), info.getThreadState().ordinal(), stackTraceElements));
+				}
+				return list;
 			}
 		}));
 

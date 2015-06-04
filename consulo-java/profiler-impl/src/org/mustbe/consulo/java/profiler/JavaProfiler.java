@@ -13,7 +13,7 @@ import org.apache.thrift.transport.TSocket;
 import org.jetbrains.annotations.NotNull;
 import org.mustbe.consulo.java.JavaIcons;
 import org.mustbe.consulo.java.profiler.ui.JavaProcessDescriptionPanel;
-import org.mustbe.consulo.profiler.ProfilerService;
+import org.mustbe.consulo.profiler.TProfilerService;
 import org.mustbe.consulo.xprofiler.XProfiler;
 import org.mustbe.consulo.xprofiler.XProfilerSession;
 import com.intellij.execution.ExecutionException;
@@ -81,7 +81,8 @@ public class JavaProfiler extends XProfiler<JavaProfilerProcess>
 			TSocket transport = new TSocket("127.0.0.1", 7890);
 
 			transport.open();
-			ProfilerService.Client client = new ProfilerService.Client(new TBinaryProtocol(transport));
+
+			TProfilerService.Client client = new TProfilerService.Client(new TBinaryProtocol(transport));
 
 			return new JavaProfilerSession(this, process, vm, client);
 		}

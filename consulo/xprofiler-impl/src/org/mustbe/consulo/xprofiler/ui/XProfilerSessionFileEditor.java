@@ -18,6 +18,7 @@ import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorLocation;
 import com.intellij.openapi.fileEditor.FileEditorState;
 import com.intellij.openapi.fileEditor.FileEditorStateLevel;
+import com.intellij.openapi.project.PossiblyDumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Disposer;
@@ -29,7 +30,7 @@ import com.intellij.util.ui.UIUtil;
  * @author VISTALL
  * @since 31.05.2015
  */
-public class XProfilerSessionFileEditor extends UserDataHolderBase implements FileEditor
+public class XProfilerSessionFileEditor extends UserDataHolderBase implements FileEditor, PossiblyDumbAware
 {
 	private JPanel myRootPanel;
 
@@ -180,5 +181,11 @@ public class XProfilerSessionFileEditor extends UserDataHolderBase implements Fi
 	public void dispose()
 	{
 		Disposer.dispose(this);
+	}
+
+	@Override
+	public boolean isDumbAware()
+	{
+		return true;
 	}
 }

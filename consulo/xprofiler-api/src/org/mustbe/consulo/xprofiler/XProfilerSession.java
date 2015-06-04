@@ -19,6 +19,7 @@ public class XProfilerSession<P extends XProfilerProcess> implements Disposable
 {
 	public static final Key<List<XProfilerMemoryObjectInfo>> DEFAULT_OBJECT_INFOS = Key.create("default.object.infos");
 	public static final Key<XProfilerMemorySample> DEFAULT_MEMORY_SAMPLE = Key.create("default.memory.sample");
+	public static final Key<XProfilerMemorySample> DEFAULT_THREAD_INFOS = Key.create("default.memory.sample");
 
 	private XProfiler<P> myProfiler;
 	private P myProcess;

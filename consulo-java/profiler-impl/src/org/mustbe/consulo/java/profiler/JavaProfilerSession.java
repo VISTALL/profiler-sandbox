@@ -8,9 +8,9 @@ import java.util.Set;
 
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
-import org.mustbe.consulo.profiler.MemoryInfo;
-import org.mustbe.consulo.profiler.MemoryUsage;
-import org.mustbe.consulo.profiler.ProfilerService;
+import org.mustbe.consulo.profiler.TMemoryInfo;
+import org.mustbe.consulo.profiler.TMemoryUsage;
+import org.mustbe.consulo.profiler.TProfilerService;
 import org.mustbe.consulo.xprofiler.XProfiler;
 import org.mustbe.consulo.xprofiler.XProfilerMemoryObjectInfo;
 import org.mustbe.consulo.xprofiler.XProfilerMemorySample;
@@ -49,12 +49,12 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 	public static final Key<XProfilerMemorySample> NONHEAP_MEMORY_SAMPLE = Key.create("non.heap.memory.sample");
 
 	private HotSpotVirtualMachine myVirtualMachine;
-	private ProfilerService.Client myClient;
+	private TProfilerService.Client myClient;
 
 	public JavaProfilerSession(XProfiler<JavaProfilerProcess> profiler,
 			JavaProfilerProcess process,
 			VirtualMachine virtualMachine,
-			ProfilerService.Client client)
+			TProfilerService.Client client)
 	{
 		super(profiler, process);
 		myClient = client;
@@ -91,14 +91,14 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 			}
 			else if(key == HEAP_MEMORY_SAMPLE)
 			{
-				MemoryInfo result = myClient.memoryInfo();
-				MemoryUsage heap = result.getHeap();
+				TMemoryInfo result = myClient.memoryInfo();
+				TMemoryUsage heap = result.getHeap();
 				consumer.consume(new XProfilerMemorySample(heap.getCommitted(), heap.getUsed()));
 			}
 			else if(key == NONHEAP_MEMORY_SAMPLE)
 			{
-				MemoryInfo result = myClient.memoryInfo();
-				MemoryUsage heap = result.getNonHeap();
+				TMemoryInfo result = myClient.memoryInfo();
+				TMemoryUsage heap = result.getNonHeap();
 				consumer.consume(new XProfilerMemorySample(heap.getCommitted(), heap.getUsed()));
 			}
 		}
