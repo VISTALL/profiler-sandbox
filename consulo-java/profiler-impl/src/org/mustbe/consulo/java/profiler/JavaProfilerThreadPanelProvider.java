@@ -32,6 +32,9 @@ public class JavaProfilerThreadPanelProvider implements XProfilerThreadPanelProv
 		coloredComponent.append(item.getName());
 
 		Thread.State state = Thread.State.values()[item.getState()];
+		coloredComponent.append(" ");
+		coloredComponent.append(state.name(), SimpleTextAttributes.GRAY_ATTRIBUTES);
+
 		switch(state)
 		{
 			case NEW:
