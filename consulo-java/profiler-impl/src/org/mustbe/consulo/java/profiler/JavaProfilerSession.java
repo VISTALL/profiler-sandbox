@@ -63,12 +63,19 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 
 	@NotNull
 	@Override
+	@SuppressWarnings("unchecked")
 	public Pair<String, Key<XProfilerMemorySample>>[] getMemoryWatchKeys()
 	{
 		return new Pair[]{
 				Pair.create("Heap Memory", HEAP_MEMORY_SAMPLE),
 				Pair.create("Non Heap Memory", NONHEAP_MEMORY_SAMPLE),
 		};
+	}
+
+	@Override
+	public boolean isSupportThreadPanel()
+	{
+		return true;
 	}
 
 	@Override

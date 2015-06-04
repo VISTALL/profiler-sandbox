@@ -21,8 +21,8 @@ public class XProfilerSession<P extends XProfilerProcess> implements Disposable
 	public static final Key<XProfilerMemorySample> DEFAULT_MEMORY_SAMPLE = Key.create("default.memory.sample");
 	public static final Key<XProfilerMemorySample> DEFAULT_THREAD_INFOS = Key.create("default.memory.sample");
 
-	private XProfiler<P> myProfiler;
-	private P myProcess;
+	protected XProfiler<P> myProfiler;
+	protected P myProcess;
 
 	public XProfilerSession(@NotNull XProfiler<P> profiler, @NotNull P process)
 	{
@@ -30,6 +30,7 @@ public class XProfilerSession<P extends XProfilerProcess> implements Disposable
 		myProcess = process;
 	}
 
+	@SuppressWarnings("unchecked")
 	public final <T> void fetchData(@NotNull Key<T> key, @NotNull Consumer<T> consumer)
 	{
 		fetchDataImpl(key, (Consumer<Object>) consumer);
@@ -40,7 +41,13 @@ public class XProfilerSession<P extends XProfilerProcess> implements Disposable
 		throw new UnsupportedOperationException();
 	}
 
+	public boolean isSupportThreadPanel()
+	{
+		return false;
+	}
+
 	@NotNull
+	@SuppressWarnings("unchecked")
 	public Pair<String, Key<XProfilerMemorySample>>[] getMemoryWatchKeys()
 	{
 		return new Pair[] {Pair.create("Memory", DEFAULT_MEMORY_SAMPLE)};
