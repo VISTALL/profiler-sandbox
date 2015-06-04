@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 
 import org.mustbe.consulo.xprofiler.XProfilerSession;
+import org.mustbe.consulo.xprofiler.XProfilerThreadPanelProvider;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
@@ -30,9 +31,21 @@ public class XProfilerMainPanel extends JPanel implements Disposable
 		tabbedPaneWrapper.addTab("CPU", new JPanel());
 
 		XProfilerMemoryPanel memoryPanel = new XProfilerMemoryPanel(myProject, session);
+		memoryPanel.init();
 
 		Disposer.register(this, memoryPanel);
 		tabbedPaneWrapper.addTab("Memory", memoryPanel);
+
+		XProfilerThreadPanelProvider<?> threadProvider = session.getThreadProvider();
+		if(threadProvider != null)
+		{
+			//noinspection unchecked
+			XProfilerThreadPanel threadPanel = new XProfilerThreadPanel(myProject, session, threadProvider);
+			threadPanel.init();
+
+			Disposer.register(this, threadPanel);
+			tabbedPaneWrapper.addTab("Threads", threadPanel);
+		}
 
 		add(tabbedPaneWrapper.getComponent(), BorderLayout.CENTER);
 	}

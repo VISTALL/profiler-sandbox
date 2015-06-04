@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.consulo.lombok.annotations.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Key;
@@ -44,9 +45,10 @@ public class XProfilerSession<P extends XProfilerProcess> implements Disposable
 		throw new UnsupportedOperationException();
 	}
 
-	public boolean isSupportThreadPanel()
+	@Nullable
+	public XProfilerThreadPanelProvider getThreadProvider()
 	{
-		return false;
+		return null;
 	}
 
 	@NotNull

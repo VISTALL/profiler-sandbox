@@ -99,16 +99,16 @@ public class XProfilerMemoryPanel extends XProfilerMainSubPanel
 
 		Pair<String, Key<XProfilerMemorySample>>[] memoryWatchKeys = mySession.getMemoryWatchKeys();
 
-		JPanel panel = new JPanel(new HorizontalLayout(0));
+		JPanel memoryPanel = new JPanel(new HorizontalLayout(0));
 
 		for(Pair<String, Key<XProfilerMemorySample>> memoryWatchKey : memoryWatchKeys)
 		{
 			MemoryPlotPanel value = new MemoryPlotPanel(memoryWatchKey.getFirst());
 			myMemoryPanels.put(memoryWatchKey.getSecond(), value);
-			panel.add(value);
+			memoryPanel.add(value);
 		}
 
-		pixelSplitter.setFirstComponent(panel);
+		pixelSplitter.setFirstComponent(ScrollPaneFactory.createScrollPane(memoryPanel));
 
 		final ListTableModel<XProfilerMemoryObjectInfo> tableModel = new ListTableModel<XProfilerMemoryObjectInfo>(ourColumns,
 				Collections.<XProfilerMemoryObjectInfo>emptyList(), 1);

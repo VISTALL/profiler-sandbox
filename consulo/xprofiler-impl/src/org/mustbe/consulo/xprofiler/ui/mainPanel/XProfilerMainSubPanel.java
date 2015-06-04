@@ -28,10 +28,15 @@ public abstract class XProfilerMainSubPanel extends JPanel implements Disposable
 		super(new BorderLayout());
 		myProject = project;
 		mySession = session;
+	}
 
+	@NotNull
+	public XProfilerMainSubPanel init()
+	{
 		add(createRootComponent(), BorderLayout.CENTER);
 
 		myFuture = JobScheduler.getScheduler().scheduleAtFixedRate(this, 1, 1, TimeUnit.SECONDS);
+		return this;
 	}
 
 	@NotNull

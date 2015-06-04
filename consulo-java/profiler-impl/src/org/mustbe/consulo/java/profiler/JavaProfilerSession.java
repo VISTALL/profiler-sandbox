@@ -8,13 +8,16 @@ import java.util.Set;
 
 import org.apache.thrift.TException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mustbe.consulo.profiler.TMemoryInfo;
 import org.mustbe.consulo.profiler.TMemoryUsage;
 import org.mustbe.consulo.profiler.TProfilerService;
+import org.mustbe.consulo.profiler.TThreadInfo;
 import org.mustbe.consulo.xprofiler.XProfiler;
 import org.mustbe.consulo.xprofiler.XProfilerMemoryObjectInfo;
 import org.mustbe.consulo.xprofiler.XProfilerMemorySample;
 import org.mustbe.consulo.xprofiler.XProfilerSession;
+import org.mustbe.consulo.xprofiler.XProfilerThreadPanelProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Pair;
@@ -47,6 +50,7 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 
 	public static final Key<XProfilerMemorySample> HEAP_MEMORY_SAMPLE = Key.create("heap.memory.sample");
 	public static final Key<XProfilerMemorySample> NONHEAP_MEMORY_SAMPLE = Key.create("non.heap.memory.sample");
+	public static final Key<List<TThreadInfo>> THREAD_INFOS = Key.create("java.thread.infos");
 
 	private HotSpotVirtualMachine myVirtualMachine;
 	private TProfilerService.Client myClient;
@@ -72,10 +76,11 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 		};
 	}
 
+	@Nullable
 	@Override
-	public boolean isSupportThreadPanel()
+	public XProfilerThreadPanelProvider getThreadProvider()
 	{
-		return true;
+		return new JavaProfilerThreadPanelProvider();
 	}
 
 	@Override
@@ -107,6 +112,10 @@ public class JavaProfilerSession extends XProfilerSession<JavaProfilerProcess>
 				TMemoryInfo result = myClient.memoryInfo();
 				TMemoryUsage heap = result.getNonHeap();
 				consumer.consume(new XProfilerMemorySample(heap.getCommitted(), heap.getUsed()));
+			}
+			else if(key == THREAD_INFOS)
+			{
+				consumer.consume(myClient.threads());
 			}
 		}
 		catch(IOException e)
