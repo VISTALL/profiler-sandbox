@@ -6,6 +6,7 @@ import java.util.List;
 import org.consulo.lombok.annotations.Logger;
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.Consumer;
@@ -33,6 +34,8 @@ public class XProfilerSession<P extends XProfilerProcess> implements Disposable
 	@SuppressWarnings("unchecked")
 	public final <T> void fetchData(@NotNull Key<T> key, @NotNull Consumer<T> consumer)
 	{
+		LOGGER.assertTrue(!ApplicationManager.getApplication().isDispatchThread(), "This method should not be called from dispatch thread, " +
+				"due it cat block it");
 		fetchDataImpl(key, (Consumer<Object>) consumer);
 	}
 
