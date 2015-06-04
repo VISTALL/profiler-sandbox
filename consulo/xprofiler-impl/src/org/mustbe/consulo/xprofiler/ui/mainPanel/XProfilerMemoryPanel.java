@@ -1,26 +1,23 @@
 package org.mustbe.consulo.xprofiler.ui.mainPanel;
 
-import java.awt.BorderLayout;
 import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jfree.data.time.Millisecond;
 import org.mustbe.consulo.xprofiler.XProfilerMemoryObjectInfo;
 import org.mustbe.consulo.xprofiler.XProfilerMemorySample;
 import org.mustbe.consulo.xprofiler.XProfilerSession;
-import com.intellij.concurrency.JobScheduler;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Pair;
@@ -34,28 +31,73 @@ import com.intellij.util.PairConsumer;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.ColumnInfo;
 import com.intellij.util.ui.ListTableModel;
+import com.intellij.util.ui.TableViewModel;
 import com.intellij.util.ui.UIUtil;
 
 /**
  * @author VISTALL
  * @since 31.05.2015
  */
-public class XProfilerMemoryPanel extends JPanel implements Disposable
+public class XProfilerMemoryPanel extends XProfilerMainSubPanel
 {
-	private Future<?> myFuture;
-	private Project myProject;
+	private static final ColumnInfo[] ourColumns = new ColumnInfo[]{
+			new ColumnInfo<XProfilerMemoryObjectInfo, String>("Type")
+			{
+				@Nullable
+				@Override
+				public String valueOf(XProfilerMemoryObjectInfo o)
+				{
+					return o.getType();
+				}
+			},
+			new ColumnInfo<XProfilerMemoryObjectInfo, Integer>("Count")
+			{
+				@Nullable
+				@Override
+				public Comparator<XProfilerMemoryObjectInfo> getComparator()
+				{
+					return new Comparator<XProfilerMemoryObjectInfo>()
+					{
+						@Override
+						public int compare(XProfilerMemoryObjectInfo o1, XProfilerMemoryObjectInfo o2)
+						{
+							return o2.getCount() - o1.getCount();
+						}
+					};
+				}
 
-	private Map<Key<XProfilerMemorySample>, MemoryPlotPanel> myMemoryPanels = new HashMap<Key<XProfilerMemorySample>, MemoryPlotPanel>();
+				@Nullable
+				@Override
+				public Integer valueOf(XProfilerMemoryObjectInfo o)
+				{
+					return o.getCount();
+				}
+
+				@Override
+				public int getWidth(JTable table)
+				{
+					return 100;
+				}
+			}
+	};
+
+	private Map<Key<XProfilerMemorySample>, MemoryPlotPanel> myMemoryPanels;
+	private TableView<XProfilerMemoryObjectInfo> myTableView;
 
 	public XProfilerMemoryPanel(Project project, final XProfilerSession<?> session)
 	{
-		super(new BorderLayout());
-		myProject = project;
+		super(project, session);
+	}
+
+	@NotNull
+	@Override
+	public JComponent createRootComponent()
+	{
+		myMemoryPanels = new HashMap<Key<XProfilerMemorySample>, MemoryPlotPanel>();
 
 		OnePixelSplitter pixelSplitter = new OnePixelSplitter(true);
-		add(pixelSplitter);
 
-		Pair<String, Key<XProfilerMemorySample>>[] memoryWatchKeys = session.getMemoryWatchKeys();
+		Pair<String, Key<XProfilerMemorySample>>[] memoryWatchKeys = mySession.getMemoryWatchKeys();
 
 		JPanel panel = new JPanel(new HorizontalLayout(0));
 
@@ -68,54 +110,16 @@ public class XProfilerMemoryPanel extends JPanel implements Disposable
 
 		pixelSplitter.setFirstComponent(panel);
 
-		final ListTableModel<XProfilerMemoryObjectInfo> tableModel = new ListTableModel<XProfilerMemoryObjectInfo>(new ColumnInfo[]{
-				new ColumnInfo<XProfilerMemoryObjectInfo, String>("Type")
-				{
-					@Nullable
-					@Override
-					public String valueOf(XProfilerMemoryObjectInfo o)
-					{
-						return o.getType();
-					}
-				},
-				new ColumnInfo<XProfilerMemoryObjectInfo, Integer>("Count")
-				{
-					@Nullable
-					@Override
-					public Comparator<XProfilerMemoryObjectInfo> getComparator()
-					{
-						return new Comparator<XProfilerMemoryObjectInfo>()
-						{
-							@Override
-							public int compare(XProfilerMemoryObjectInfo o1, XProfilerMemoryObjectInfo o2)
-							{
-								return o2.getCount() - o1.getCount();
-							}
-						};
-					}
+		final ListTableModel<XProfilerMemoryObjectInfo> tableModel = new ListTableModel<XProfilerMemoryObjectInfo>(ourColumns,
+				Collections.<XProfilerMemoryObjectInfo>emptyList(), 1);
 
-					@Nullable
-					@Override
-					public Integer valueOf(XProfilerMemoryObjectInfo o)
-					{
-						return o.getCount();
-					}
-
-					@Override
-					public int getWidth(JTable table)
-					{
-						return 100;
-					}
-				}
-		}, Collections.<XProfilerMemoryObjectInfo>emptyList(), 1);
-
-		final TableView<XProfilerMemoryObjectInfo> table = new TableView<XProfilerMemoryObjectInfo>(tableModel);
+		myTableView = new TableView<XProfilerMemoryObjectInfo>(tableModel);
 		new DoubleClickListener()
 		{
 			@Override
 			protected boolean onDoubleClick(MouseEvent mouseEvent)
 			{
-				XProfilerMemoryObjectInfo selectedObject = table.getSelectedObject();
+				XProfilerMemoryObjectInfo selectedObject = myTableView.getSelectedObject();
 				if(selectedObject == null)
 				{
 					return false;
@@ -127,75 +131,63 @@ public class XProfilerMemoryPanel extends JPanel implements Disposable
 				}
 				return true;
 			}
-		}.installOn(table);
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		}.installOn(myTableView);
+		myTableView.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		pixelSplitter.setSecondComponent(ScrollPaneFactory.createScrollPane(table));
-
-		myFuture = JobScheduler.getScheduler().scheduleAtFixedRate(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				try
-				{
-					session.fetchData(XProfilerSession.DEFAULT_OBJECT_INFOS, new Consumer<List<XProfilerMemoryObjectInfo>>()
-					{
-						@Override
-						public void consume(final List<XProfilerMemoryObjectInfo> memoryObjectInfos)
-						{
-							UIUtil.invokeLaterIfNeeded(new Runnable()
-							{
-								@Override
-								public void run()
-								{
-									XProfilerMemoryObjectInfo selectedObject = table.getSelectedObject();
-									XProfilerMemoryObjectInfo newSelectedObject = selectedObject == null ? null : ContainerUtil.find(memoryObjectInfos,
-											selectedObject);
-
-									tableModel.setItems(memoryObjectInfos);
-
-									table.setSelection(Collections.singletonList(newSelectedObject));
-								}
-							});
-						}
-					});
-
-					final Millisecond m = new Millisecond();
-
-					for(Map.Entry<Key<XProfilerMemorySample>, MemoryPlotPanel> entry : myMemoryPanels.entrySet())
-					{
-						Key<XProfilerMemorySample> key = entry.getKey();
-						final MemoryPlotPanel value = entry.getValue();
-
-						session.fetchData(key, new Consumer<XProfilerMemorySample>()
-						{
-							@Override
-							public void consume(final XProfilerMemorySample memorySample)
-							{
-								UIUtil.invokeLaterIfNeeded(new Runnable()
-								{
-									@Override
-									public void run()
-									{
-										value.addSample(m, memorySample);
-									}
-								});
-							}
-						});
-					}
-				}
-				catch(Exception e)
-				{
-					e.printStackTrace();
-				}
-			}
-		}, 1, 1, TimeUnit.SECONDS);
+		pixelSplitter.setSecondComponent(ScrollPaneFactory.createScrollPane(myTableView));
+		return pixelSplitter;
 	}
 
 	@Override
-	public void dispose()
+	public void run()
 	{
-		myFuture.cancel(false);
+		mySession.fetchData(XProfilerSession.DEFAULT_OBJECT_INFOS, new Consumer<List<XProfilerMemoryObjectInfo>>()
+		{
+			@Override
+			public void consume(final List<XProfilerMemoryObjectInfo> memoryObjectInfos)
+			{
+				UIUtil.invokeLaterIfNeeded(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						XProfilerMemoryObjectInfo selectedObject = myTableView.getSelectedObject();
+						XProfilerMemoryObjectInfo newSelectedObject = selectedObject == null ? null : ContainerUtil.find(memoryObjectInfos,
+								selectedObject);
+
+						//noinspection unchecked
+						TableViewModel<XProfilerMemoryObjectInfo> model = (TableViewModel<XProfilerMemoryObjectInfo>) myTableView.getModel();
+
+						model.setItems(memoryObjectInfos);
+
+						myTableView.setSelection(Collections.singletonList(newSelectedObject));
+					}
+				});
+			}
+		});
+
+		final Millisecond m = new Millisecond();
+
+		for(Map.Entry<Key<XProfilerMemorySample>, MemoryPlotPanel> entry : myMemoryPanels.entrySet())
+		{
+			Key<XProfilerMemorySample> key = entry.getKey();
+			final MemoryPlotPanel value = entry.getValue();
+
+			mySession.fetchData(key, new Consumer<XProfilerMemorySample>()
+			{
+				@Override
+				public void consume(final XProfilerMemorySample memorySample)
+				{
+					UIUtil.invokeLaterIfNeeded(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							value.addSample(m, memorySample);
+						}
+					});
+				}
+			});
+		}
 	}
 }
