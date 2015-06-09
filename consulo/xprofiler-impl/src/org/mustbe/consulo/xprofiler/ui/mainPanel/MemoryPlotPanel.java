@@ -15,7 +15,6 @@ package org.mustbe.consulo.xprofiler.ui.mainPanel;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import java.text.SimpleDateFormat;
 
@@ -33,6 +32,7 @@ import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.mustbe.consulo.xprofiler.XProfilerMemorySample;
+import com.intellij.ui.JBColor;
 
 public class MemoryPlotPanel extends JPanel
 {
@@ -58,13 +58,11 @@ public class MemoryPlotPanel extends JPanel
 		seriesCollection.addSeries(usedSeries);
 
 		NumberAxis numberAxis = new NumberAxis("Memory (KB)");
-		numberAxis.setLabelFont(new Font("SansSerif", 0, 14));
-		numberAxis.setTickLabelFont(new Font("SansSerif", 0, 12));
+
 		numberAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
 		DateAxis dateAxis = new DateAxis("Time");
-		dateAxis.setTickLabelFont(new Font("SansSerif", 0, 12));
-		dateAxis.setLabelFont(new Font("SansSerif", 0, 14));
+
 		dateAxis.setAutoRange(true);
 		dateAxis.setLowerMargin(0);
 		dateAxis.setUpperMargin(0);
@@ -72,23 +70,24 @@ public class MemoryPlotPanel extends JPanel
 		dateAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm:ss"));
 
 		XYLineAndShapeRenderer lineRenderer = new XYLineAndShapeRenderer(true, false);
-		lineRenderer.setSeriesPaint(0, Color.RED);
-		lineRenderer.setSeriesPaint(1, Color.GREEN.darker());
+		lineRenderer.setSeriesPaint(0, JBColor.RED);
+		lineRenderer.setSeriesPaint(1, JBColor.GREEN);
 		lineRenderer.setDefaultStroke(new BasicStroke(2F, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
 		XYPlot xyplot = new XYPlot(seriesCollection, dateAxis, numberAxis, lineRenderer);
-		xyplot.setBackgroundPainter(new ColorPainter(Color.white));
-		xyplot.setDomainGridlinePaint(Color.LIGHT_GRAY);
-		xyplot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+		xyplot.setBackgroundPainter(new ColorPainter(JBColor.white));
+		xyplot.setDomainGridlinePaint(JBColor.LIGHT_GRAY);
+		xyplot.setRangeGridlinePaint(JBColor.LIGHT_GRAY);
 		xyplot.setAxisOffset(new RectangleInsets(5D, 5D, 5D, 5D));
 
 		JFreeChart chart = new JFreeChart(title, new Font("SansSerif", Font.PLAIN, 14), xyplot, true);
-		chart.setBackgroundPainter(new ColorPainter(Color.white));
+		chart.setBackgroundPainter(new ColorPainter(JBColor.white));
 
-		add(new ChartPanel(chart));
+		add(new ChartPanel(chart, 300, 300, 0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE, true, true,
+				false, false, false, false), BorderLayout.CENTER);
 	}
 
-	public void addSample(Millisecond m, XProfilerMemorySample  memorySample)
+	public void addSample(Millisecond m, XProfilerMemorySample memorySample)
 	{
 		totalSeries.add(m, memorySample.getTotalMem() / 1024);
 		usedSeries.add(m, memorySample.getUsedMem() / 1024);

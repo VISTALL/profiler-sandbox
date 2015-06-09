@@ -24,8 +24,9 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.ScrollPaneFactory;
-import com.intellij.ui.components.panels.HorizontalLayout;
 import com.intellij.ui.table.TableView;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.Consumer;
 import com.intellij.util.PairConsumer;
 import com.intellij.util.containers.ContainerUtil;
@@ -99,16 +100,18 @@ public class XProfilerMemoryPanel extends XProfilerMainSubPanel
 
 		Pair<String, Key<XProfilerMemorySample>>[] memoryWatchKeys = mySession.getMemoryWatchKeys();
 
-		JPanel memoryPanel = new JPanel(new HorizontalLayout(0));
+		JPanel memoryPanel = new JPanel(new GridLayoutManager(1, memoryWatchKeys.length));
 
-		for(Pair<String, Key<XProfilerMemorySample>> memoryWatchKey : memoryWatchKeys)
+		for(int i = 0; i < memoryWatchKeys.length; i++)
 		{
+			Pair<String, Key<XProfilerMemorySample>> memoryWatchKey = memoryWatchKeys[i];
 			MemoryPlotPanel value = new MemoryPlotPanel(memoryWatchKey.getFirst());
 			myMemoryPanels.put(memoryWatchKey.getSecond(), value);
-			memoryPanel.add(value);
+			memoryPanel.add(value, new GridConstraints(0, i, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+					GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null));
 		}
 
-		pixelSplitter.setFirstComponent(ScrollPaneFactory.createScrollPane(memoryPanel));
+		pixelSplitter.setFirstComponent(memoryPanel);
 
 		final ListTableModel<XProfilerMemoryObjectInfo> tableModel = new ListTableModel<XProfilerMemoryObjectInfo>(ourColumns,
 				Collections.<XProfilerMemoryObjectInfo>emptyList(), 1);

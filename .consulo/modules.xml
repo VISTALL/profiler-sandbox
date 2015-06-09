@@ -41,6 +41,9 @@
               <binaries>
                 <root url="jar://$MODULE_DIR$/lib/jfreechart-nofx-2.0-pre1.jar!/" />
               </binaries>
+              <sources>
+                <root url="jar://$MODULE_DIR$/libSrc/jfreechart-nofx-2.0-pre1-src.jar!/" />
+              </sources>
             </library>
           </orderEntry>
         </module-layer>
