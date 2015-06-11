@@ -99,7 +99,7 @@ public class Agent
 				t = new Transformer(config);
 
 				BytecodeTransformer.enabled = true;
-				inst.addTransformer(t);
+				/*inst.addTransformer(t);
 				if(inst.isRetransformClassesSupported())
 				{
 					Class[] allLoadedClasses = inst.getAllLoadedClasses();
@@ -122,7 +122,7 @@ public class Agent
 				else
 				{
 					print(0, "isRetransformClassesSupported: false");
-				}
+				}  */
 
 				Agent.inst = inst;
 
