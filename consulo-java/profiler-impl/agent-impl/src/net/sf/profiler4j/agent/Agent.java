@@ -29,6 +29,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.mustbe.consulo.profiler.ServerThread;
+
 /**
  * Class responsible for the intialization of the agent.
  *
@@ -43,10 +45,10 @@ public class Agent
 	static Config config;
 	static ServerThread serverThread;
 
-	static RuntimeMXBean rtbean = ManagementFactory.getRuntimeMXBean();
-	static List<GarbageCollectorMXBean> gcbeans = ManagementFactory.getGarbageCollectorMXBeans();
-	static MemoryMXBean membean = ManagementFactory.getMemoryMXBean();
-	static ThreadMXBean threadbean = ManagementFactory.getThreadMXBean();
+	public static RuntimeMXBean rtbean = ManagementFactory.getRuntimeMXBean();
+	public static List<GarbageCollectorMXBean> gcbeans = ManagementFactory.getGarbageCollectorMXBeans();
+	public static MemoryMXBean membean = ManagementFactory.getMemoryMXBean();
+	public static ThreadMXBean threadbean = ManagementFactory.getThreadMXBean();
 
 	volatile static boolean beingShutdown;
 
@@ -155,7 +157,7 @@ public class Agent
 	 *                           enhanceable will be returned
 	 * @return Array of classes
 	 */
-	static Class[] getLoadedClasses(boolean skipNonEnhanceable)
+	public static Class[] getLoadedClasses(boolean skipNonEnhanceable)
 	{
 		if(!skipNonEnhanceable)
 		{

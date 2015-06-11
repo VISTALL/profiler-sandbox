@@ -1,21 +1,20 @@
-package net.sf.profiler4j.agent;
+package org.mustbe.consulo.profiler;
 
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.profiler4j.agent.Agent;
+import net.sf.profiler4j.agent.BytecodeTransformer;
+import net.sf.profiler4j.agent.Config;
+import net.sf.profiler4j.agent.Log;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TSimpleServer;
 import org.apache.thrift.transport.TServerSocket;
-import org.mustbe.consulo.profiler.TClassInfo;
-import org.mustbe.consulo.profiler.TMemoryInfo;
-import org.mustbe.consulo.profiler.TMemoryUsage;
-import org.mustbe.consulo.profiler.TProfilerService;
-import org.mustbe.consulo.profiler.TStackTraceElement;
-import org.mustbe.consulo.profiler.TThreadInfo;
 
 /**
  * @author VISTALL
