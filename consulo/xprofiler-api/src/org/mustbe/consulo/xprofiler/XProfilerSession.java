@@ -3,7 +3,6 @@ package org.mustbe.consulo.xprofiler;
 
 import java.util.List;
 
-import org.consulo.lombok.annotations.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.Disposable;
@@ -11,6 +10,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.Consumer;
+import consulo.lombok.annotations.Logger;
 
 /**
  * @author VISTALL
