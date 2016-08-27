@@ -4,9 +4,7 @@
     <modules>
       <module name="profiler-sandbox" dirurl="file://$PROJECT_DIR$" current-layer="Default">
         <module-layer name="Default">
-          <content url="file://$MODULE_DIR$">
-            <content-folder type="EXCLUDED" url="file://$MODULE_DIR$/.consulo" />
-          </content>
+          <content url="file://$MODULE_DIR$" />
           <orderEntry type="sourceFolder" />
         </module-layer>
       </module>
@@ -61,23 +59,6 @@
           <orderEntry type="sourceFolder" />
           <orderEntry type="module" module-name="xprofiler-impl" />
           <orderEntry type="module-library">
-            <library name="consulo:Java">
-              <binaries>
-                <root url="jar://$MODULE_DIR$/../../dep/java/lib/asm-all.jar!/" />
-                <root url="jar://$MODULE_DIR$/../../dep/java/lib/coverate_rt.jar!/" />
-                <root url="jar://$MODULE_DIR$/../../dep/java/lib/instrumentation-util.jar!/" />
-                <root url="jar://$MODULE_DIR$/../../dep/java/lib/jacocoant.jar!/" />
-                <root url="jar://$MODULE_DIR$/../../dep/java/lib/java-i18n.jar!/" />
-                <root url="jar://$MODULE_DIR$/../../dep/java/lib/java-manifest.jar!/" />
-                <root url="jar://$MODULE_DIR$/../../dep/java/lib/java-rt.jar!/" />
-                <root url="jar://$MODULE_DIR$/../../dep/java/lib/java.jar!/" />
-                <root url="jar://$MODULE_DIR$/../../dep/java/lib/jdi.jar!/" />
-                <root url="jar://$MODULE_DIR$/../../dep/java/lib/jdk-annotations.jar!/" />
-                <root url="jar://$MODULE_DIR$/../../dep/java/lib/jimage-jdk6.jar!/" />
-              </binaries>
-            </library>
-          </orderEntry>
-          <orderEntry type="module-library">
             <library>
               <binaries>
                 <root url="jar://$MODULE_DIR$/lib/tools.jar!/" />
@@ -95,6 +76,23 @@
             </library>
           </orderEntry>
           <orderEntry type="module" module-name="agent-common" />
+          <orderEntry type="module-library">
+            <library name="consulo:Java">
+              <binaries>
+                <root url="jar://$MODULE_DIR$/../../dep/java/lib/asm-all.jar!/" />
+                <root url="jar://$MODULE_DIR$/../../dep/java/lib/coverate_rt.jar!/" />
+                <root url="jar://$MODULE_DIR$/../../dep/java/lib/instrumentation-util.jar!/" />
+                <root url="jar://$MODULE_DIR$/../../dep/java/lib/jacocoant.jar!/" />
+                <root url="jar://$MODULE_DIR$/../../dep/java/lib/java-i18n.jar!/" />
+                <root url="jar://$MODULE_DIR$/../../dep/java/lib/java-manifest.jar!/" />
+                <root url="jar://$MODULE_DIR$/../../dep/java/lib/java-rt.jar!/" />
+                <root url="jar://$MODULE_DIR$/../../dep/java/lib/java.jar!/" />
+                <root url="jar://$MODULE_DIR$/../../dep/java/lib/jdi.jar!/" />
+                <root url="jar://$MODULE_DIR$/../../dep/java/lib/jdk-annotations.jar!/" />
+                <root url="jar://$MODULE_DIR$/../../dep/java/lib/jimage-jdk6.jar!/" />
+              </binaries>
+            </library>
+          </orderEntry>
         </module-layer>
       </module>
       <module name="agent-impl" dirurl="file://$PROJECT_DIR$/consulo-java/profiler-impl/agent-impl" current-layer="Default">
