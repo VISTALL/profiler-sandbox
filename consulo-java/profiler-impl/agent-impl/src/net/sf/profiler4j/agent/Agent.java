@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.mustbe.consulo.profiler.ServerThread;
+import consulo.profiler.ServerThread;
 
 /**
  * Class responsible for the intialization of the agent.
