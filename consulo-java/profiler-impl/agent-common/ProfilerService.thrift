@@ -1,4 +1,4 @@
-namespace java org.mustbe.consulo.profiler
+namespace java consulo.profiler
 
 struct TClassInfo
 {

@@ -55,7 +55,7 @@ public class BytecodeTransformer {
 		}
 		if(className.startsWith("consulo.profiler.internal.") ||
 				className.startsWith("net.sf.profiler4j.") ||
-				className.startsWith("org.mustbe.consulo.profiler"))
+				className.startsWith("consulo.profiler"))
 		{
 			return classBytes;
 		}
