@@ -3,7 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/plugin</output-path>
     <root id="root">
       <element id="artifact" artifact-name="dist" />
-      <element id="dir-copy" path="$PROJECT_DIR$/depNoFetch" />
+      <element id="dir-copy" path="$PROJECT_DIR$/dep" />
     </root>
   </artifact>
 </component>

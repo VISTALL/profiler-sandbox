@@ -2,13 +2,13 @@ package org.mustbe.consulo.xprofiler.actions;
 
 import java.util.Random;
 
-import org.mustbe.consulo.RequiredDispatchThread;
 import org.mustbe.consulo.xprofiler.file.XProfilerSessionFileType;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.testFramework.LightVirtualFile;
+import consulo.annotations.RequiredDispatchThread;
 
 /**
  * @author VISTALL

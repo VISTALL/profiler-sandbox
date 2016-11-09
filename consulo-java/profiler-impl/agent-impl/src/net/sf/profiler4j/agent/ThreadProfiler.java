@@ -416,7 +416,7 @@ public class ThreadProfiler {
          */
         public void addChildTime(MethodGroup child, long time) {
             /*
-             * We may need to improve this search in the future. However, as far as I´ve
+             * We may need to improve this search in the future. However, as far as I've
              * measured, it does not seem have a significant perfomance penalty right now,
              * as most of the time the child count are really small (less than 10). It is
              * worth noting that some complex programs suchs as JBoss require very large
@@ -440,7 +440,7 @@ public class ThreadProfiler {
                     childrenTimes = new long[newChildCount];
                     System.arraycopy(oldChildrenTimes, 0, childrenTimes, 0, childCount);
                 }
-                // If the supplied childId was not found then add it to this group´s list.
+                // If the supplied childId was not found then add it to this group's list.
                 children[childCount] = child;
                 index = childCount++;
             }
