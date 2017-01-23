@@ -7,18 +7,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.Pair;
 import com.intellij.util.Consumer;
-import consulo.lombok.annotations.Logger;
 
 /**
  * @author VISTALL
  * @since 31.05.2015
  */
-@Logger
 public class XProfilerSession<P extends XProfilerProcess> implements Disposable
 {
+	private static final Logger LOGGER = Logger.getInstance(XProfilerSession.class);
+
 	public static final Key<List<XProfilerMemoryObjectInfo>> DEFAULT_OBJECT_INFOS = Key.create("default.object.infos");
 	public static final Key<XProfilerMemorySample> DEFAULT_MEMORY_SAMPLE = Key.create("default.memory.sample");
 	public static final Key<XProfilerMemorySample> DEFAULT_THREAD_INFOS = Key.create("default.memory.sample");
